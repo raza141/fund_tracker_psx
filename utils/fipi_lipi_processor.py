@@ -32,7 +32,7 @@ class FIPIDataProcessor:
             for year_dir in os.listdir(self.directory):
                 year_path = Path(self.directory) / year_dir
                 if year_path.is_dir():  # Only process directories
-                    print(f"Scanning directory: {year_path.name}")
+                    print(f"Scanning directory: {year_dir} : {year_path}")
                     with os.scandir(year_path) as files:
                         # Collect paths for all CSV files in each year directory
                         csv_files = [file.path for file in files if file.is_file() and file.path.endswith('.csv')]
@@ -113,7 +113,7 @@ class FIPIDataProcessor:
         
         # Loop through each file
         for file_path in csv_files:
-            print(f"Processing file: {file_path}")
+            # print(f"Processing file: {file_path}")
             date_fipi = self.extract_date_from_filename(file_path)  # Extract date
             if date_fipi:
                 df = pd.read_csv(file_path)  # Read the CSV file into a DataFrame
