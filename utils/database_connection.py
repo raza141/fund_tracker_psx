@@ -19,7 +19,7 @@ class DatabaseConnection:
         """
         try:
             self.connection = pymysql.connect(
-                host=self.host,
+                host=self.host, 
                 user=self.user,
                 password=self.password,
                 database=self.database,
