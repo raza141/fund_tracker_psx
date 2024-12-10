@@ -1,0 +1,1 @@
+base_url = "https://dps.psx.com.pk/download"
