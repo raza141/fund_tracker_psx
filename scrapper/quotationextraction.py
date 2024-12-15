@@ -17,15 +17,29 @@ logging.basicConfig(
 class PDFExtraction:
     def __init__(self, file_path: Path) -> None:
         self.file_path = file_path
-        self.target_pdf_file = self.open_pdf_file()
+        # self.target_pdf_file = self.open_pdf_file()
+        self.target_pdf_file = None
         self.target_page_nums_dict = self.extract_page_numbers()
 
     def open_pdf_file(self):
         try:
+            # self.target_pdf_file = pdfplumber.open(self.file_path)
             return pdfplumber.open(self.file_path)  # Simplified file opening, directly using pdfplumber
         except FileNotFoundError:
             logging.error(f"The file {self.file_path} was not found.")
             raise
+
+    def close_pdf_file(self):
+        """
+        Close the PDF file to free resources.
+        """
+        try:
+            if self.target_pdf_file:
+                self.target_pdf_file.close()
+                logging.info("PDF file closed successfully.")
+        except Exception as e:
+            logging.error(f"Error closing PDF file: {e}")
+
 
     def extract_page_numbers(self):
         """Find the Page Number where a specific pattern is found in the PDF."""
@@ -238,9 +252,24 @@ class PDFExtraction:
 
 
 def get_quotes(file_path):
-    summary = PDFExtraction(file_path).process_table()
-    for table_name, table in summary.items():
-        print(table)
+    try:
+        pdf_extractor = PDFExtraction(file_path)
+        summary = pdf_extractor.process_table()    
+    finally:    
+        pdf_extractor.close_pdf_file()
+
+    return summary
+
+
+    # def get_quotes(file_path):
+    #     extractor = PDFExtraction(file_path)
+    #     try:
+    #         extractor.open_pdf_file()
+    #         extractor.target_page_nums_dict = extractor.extract_page_numbers()
+    #         summary = extractor.process_table()
+    #         return summary
+        # finally:
+        #     extractor.close_pdf_file()
 
 
 if __name__ == "__main__":

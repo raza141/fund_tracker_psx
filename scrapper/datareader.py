@@ -7,7 +7,7 @@ from datetime import datetime, date
 import pdfplumber
 import pandas as pd
 
-import scrapper as sp
+from scrapper import scrapper as sp
 
 
 class DataReader:
@@ -122,7 +122,16 @@ class DataPreprocessor:
 
     @staticmethod
     def get_indhist(file_path):
-        pass
+        try: 
+            file_name = Path(file_path).name  # Get the file name
+            date_part = file_name.split('indhist')[-1].split('.')[0] 
+            df = pd.read_excel(file_path)
+            df = df[['SYMBOL', 'IDX WT %', 'ORD SHARES']]
+            df['date'] = pd.to_datetime(date_part, format='%d-%b-%Y')
+        except Exception as e:
+            logging.warning(f"An unexpected error occurred: {e}")
+
+        return df
 
     @staticmethod
     def get_omts(file_path):

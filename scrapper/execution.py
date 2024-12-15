@@ -2,24 +2,28 @@ import logging
 from tqdm import tqdm
 from glob import glob
 from datetime import date
+import time 
+from config.project_config import DAILY_MARKET_DATA_DOWNLOAD_PATH
 
-import scrapper as sp
-import datareader as dr
-import quotationextraction as qe
+from scrapper import scrapper as sp
+from scrapper import datareader as dr
+from scrapper import quotationextraction as qe
 
 
 class Execution:
-    def __init__(self, target_date: str = str(date.today())) -> None:
+    def __init__(self, target_date: str = str(date.today()), files_deletion=True) -> None:
         """
         Initializes the object with a data reader and sets the file path attribute.
         """
         self.date = target_date
         self.download_directory = sp.Scrapper().create_or_get_folder()
         if not self._check_existing_files():
+            # download the files
             self.today_downloads = sp.Scrapper(self.date).generate_url_links()
 
         self.file_path: dict = dr.DataReader().get_files()
         self.data_reader = dr.DataPreprocessor()
+        self.files_deletion = files_deletion
         self._setup_logging()
 
     def _setup_logging(self):
@@ -51,7 +55,8 @@ class Execution:
         Deletes all files in the DataWarehouse directory.
         """
         try:
-            for file in self.download_directory.glob("*"):
+            for file in (self.download_directory / DAILY_MARKET_DATA_DOWNLOAD_PATH).glob("*"):
+                logging.info(f"Deleting file: {file}")
                 if file.is_file():
                     file.unlink()
             logging.info("All files deleted successfully.")
@@ -98,7 +103,9 @@ class Execution:
             logging.info(f"Error while executing {extension}: {e}")
             
         # After processing, delete the files
-        self._delete_files_in_directory()
+        time.sleep(2)
+        if self.files_deletion:
+            self._delete_files_in_directory()
         
         # Display output
         return df_list
@@ -107,3 +114,4 @@ class Execution:
 if __name__ == '__main__':
     ee = Execution("2024-02-19")
     print(ee.execution_by_extension())
+    pdf
